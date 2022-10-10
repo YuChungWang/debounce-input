@@ -1,31 +1,91 @@
-<script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <section class="normal">
+    <div class="container">
+      <label for="normal">Normal Input:</label>
+      <input id="normal" type="text" name="normal" @input="changeHandler(InputType.Normal, $event)" />
+    </div>
+    <p class="result">{{ normalInput }}</p>
+  </section>
+  
+  <section class="debounce">
+    <div class="container">
+      <label for="debounce">Debounce Input:</label>
+      <input id="debounce" type="text" name="debounce" @input="debounceChangeHandler(InputType.Debounce, $event)" />
+    </div>
+    <p class="result">{{ debounceInput }}</p>
+  </section>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
+<script setup lang="ts">
+import { ref } from 'vue';
+
+enum InputType {
+  Normal = 'normal',
+  Debounce = 'debounce',
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+const normalInput = ref('');
+const debounceInput = ref('');
+
+const debounce = (fn: (...args: any) => void, delay: number) => {
+  let timer: NodeJS.Timer | null = null;
+
+  return (...args: any) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+  }
+};
+const changeHandler = (inputType: InputType, event: Event) => {
+  const { value } = event.target as HTMLInputElement;
+  switch (inputType) {
+    case InputType.Normal:
+      normalInput.value = value;
+      break;
+    case InputType.Debounce:
+      debounceInput.value = value;
+      break;
+    default:
+      break;
+  }
+};
+const debounceChangeHandler = debounce(changeHandler, 1000);
+</script>
+
+<style lang="scss" scoped>
+section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 360px;
+  height: 60px;
+  margin-bottom: 20px;
+
+  .container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 50%;
+
+    label,
+    input {
+      flex: 1;
+      text-align: left;
+    }
+  }
+
+  .result {
+    width: 100%;
+    height: 50%;
+    margin: 0;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 </style>
